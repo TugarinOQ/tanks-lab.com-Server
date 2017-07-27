@@ -1,0 +1,16 @@
+{
+  "name": "OILMAN__server",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "bcrypt-nodejs": "^0.0.3",
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "jsonwebtoken": "^7.4.1",
+    "md5": "^2.2.1",
+    "mongodb": "^2.2.30"
+  },
+  "scripts": {
+    "start": "node cluster.js"
+  }
+}
