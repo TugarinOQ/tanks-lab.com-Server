@@ -3,7 +3,7 @@ const express = require('express'),
     ObjectID = require('mongodb').ObjectID,
     body__parser = require('body-parser'),
     app = express(),
-    token__module = require('./modules/token');
+    token__module = require('../modules/token');
 
 let req = { id: null, ObjectId: null };
 
@@ -33,8 +33,8 @@ let tanks_ussr = [
         nation: 'ussr',
         displayName: 'MC-1',
         availableShop: true,
-        price: 15000, // 15 rub
-        sell: 80, // 0.08 rub day / 2.4 rub month / 12 rub 5 month
+        price: 1500, // 15 rub
+        sell: 80,
         research: {
             guns: {
                 I: {
@@ -48,6 +48,10 @@ let tanks_ussr = [
                     boost: 1
                 }
             }
+        },
+        crew: {
+            commander: 0,
+            driverMechanic: 0
         }
     }
 ];
@@ -56,19 +60,27 @@ function insertUssr() {
 
     tanks_ussr.map(tank => {
 
-        req.db.collection('vehicles_ussr').findOne({ 'name': tank.name }, (err, _tank) => {
+        // 1 rub -> 100 silver
+        // 1 rub <- 10 gold
 
-            if (!_tank) {
+        const price = tank.price;
+        const payBack = 5;
 
-                req.db.collection('vehicles_ussr').insertOne( tank, { w: 1 }, (err, res) => {
+        
 
-                    console.log(`-- ${tank.name} -- ADD`);
-                });
-            } else {
-
-                console.log(`-- ${tank.name} -- EXISTS`);
-            }
-        });
+        // req.db.collection('vehicles_ussr').findOne({ 'name': tank.name }, (err, _tank) => {
+        //
+        //     if (!_tank) {
+        //
+        //         req.db.collection('vehicles_ussr').insertOne( tank, { w: 1 }, (err, res) => {
+        //
+        //             console.log(`-- ${tank.name} -- ADD`);
+        //         });
+        //     } else {
+        //
+        //         console.log(`-- ${tank.name} -- EXISTS`);
+        //     }
+        // });
     });
 
     console.log('-- OK --');

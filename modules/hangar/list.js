@@ -8,20 +8,33 @@ router.get('/list', token__module.isValid, (req, res) => {
     const userID = req.decoded._;
     const server = req.decoded.server || 'ussr';
 
-    req.db.collection('hangars').findOne({ user: req.ObjectId(userID), server: server }, (err, _tanks) => {
+    req.db.collection('hangars').findOne({ user: req.ObjectId(userID), server: server }, (err, hangar) => {
 
         if (err) {
 
             return res.json({ error: err });
         }
 
-        let tanks = [];
+        const countSeats = hangar.countSeats || 5;
 
-        const countSeats = _tanks.countSeats || 5;
+        res.json({ countSeats: countSeats, tanks: hangar.vehicles });
+    });
+});
 
-        _tanks.vehicles.map( tank => tanks.push(tank) );
+router.post('/info', token__module.isValid, (req, res) => {
 
-        res.json({ countSeats: countSeats, tanks: tanks });
+    const userID = req.decoded._;
+    const server = req.decoded.server || 'ussr';
+    const tankID = req.body.tankID;
+
+    req.db.collection('vehicles_' + server).findOne({ _id: req.ObjectId(tankID) }, (err, tank) => {
+
+        if (err) {
+
+            return res.json({ error: err });
+        }
+
+        res.json(tank);
     });
 });
 

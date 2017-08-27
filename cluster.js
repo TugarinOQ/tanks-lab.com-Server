@@ -3,7 +3,8 @@ const express = require('express'),
     ObjectID = require('mongodb').ObjectID,
     body__parser = require('body-parser'),
     app = express(),
-    token__module = require('./modules/token');
+    token__module = require('./modules/token'),
+    config = require('./config/config');
 
 
 app.use((req, res, next) => {
@@ -15,11 +16,13 @@ app.use((req, res, next) => {
 
 // Connect to the beerlocker MongoDB
 //mongoose.connect('mongodb://test:test@ds121192.mlab.com:21192/oilman__test');
-app.use((req, res, next) => {
+function connectDB(req, res, next) {
 
-    MongoClient.connect('mongodb://test:test@oilman-shard-00-00-slnmp.mongodb.net:27017,oilman-shard-00-01-slnmp.mongodb.net:27017,oilman-shard-00-02-slnmp.mongodb.net:27017/tankslab?ssl=true&replicaSet=oilman-shard-0&authSource=admin', (err, db) => {
+    new MongoClient.connect('mongodb://test:test@oilman-shard-00-00-slnmp.mongodb.net:27017,oilman-shard-00-01-slnmp.mongodb.net:27017,oilman-shard-00-02-slnmp.mongodb.net:27017/tankslab?ssl=true&replicaSet=oilman-shard-0&authSource=admin', (err, db) => {
 
         if (err) {
+
+            console.log('DB:', err);
 
             return res.json({ error: 'No connect to DB' });
         }
@@ -29,6 +32,12 @@ app.use((req, res, next) => {
 
         next();
     });
+}
+
+
+app.use((req, res, next) => {
+
+    connectDB(req, res, next);
 });
 
 app.use(body__parser.json());
@@ -40,6 +49,7 @@ app.use(body__parser.urlencoded({
 app.get('/token/valid', token__module.isValid, (req, res) => {
 
     const email = req.decoded.email;
+    const server = req.decoded.server;
 
     req.db.collection('users').findOne({
         email: email
@@ -52,18 +62,22 @@ app.get('/token/valid', token__module.isValid, (req, res) => {
 
         const data = {
             username: user.username,
-            bons: user.bons,
-            gold: user.gold,
-            silver: user.silver,
-            practice: user.practice
+            bons: user.servers[server].bons,
+            gold: user.servers[server].gold,
+            silver: user.servers[server].silver,
+            practice: user.servers[server].practice
         };
 
-        res.json(data);
+        res.json({
+            user: data,
+            price: config.price
+        });
     });
 });
-app.use('/hangar', require('./modules/hangar'));
+app.use('/hangar', require('./modules/hangar/list'), require('./modules/hangar/slot'));
 app.use('/shop', require('./modules/shop'));
-app.use('/payments', require('./modules/payments'), require('./modules/payments/urls'));
+app.use('/payments', require('./modules/payments/urls'), require('./modules/payments/notification.center'));
+app.use('/research', require('./modules/research'));
 app.use('/users', require('./modules/users'));
 // END ROUTING
 

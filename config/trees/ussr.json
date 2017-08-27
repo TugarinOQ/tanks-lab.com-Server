@@ -1,0 +1,35 @@
+{
+  "grid": {
+    "rows": 1,
+    "columns": 3,
+    "levels": [
+      1, 1, 1
+    ]
+  },
+  "nodes": {
+    "R11_MS-1": {
+      "row": 1,
+      "column": 1,
+      "lines": [
+        "R08_BT-2"
+      ]
+    },
+    "R08_BT-2": {
+      "row": 1,
+      "column": 2,
+      "parents": [
+        "R11_MS-1"
+      ],
+      "lines": [
+        "R03_BT-7"
+      ]
+    },
+    "R03_BT-7": {
+      "row": 1,
+      "column": 3,
+      "parents": [
+        "R08_BT-2"
+      ]
+    }
+  }
+}

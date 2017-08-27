@@ -4,49 +4,77 @@ const express = require('express'),
     jwt = require('jsonwebtoken'),
     bcrypt = require('bcrypt-nodejs'),
     token__module = require('../token'),
-    getURLYAMoney = require('../../libs/payments/yandexMoney'),
-    getFreeKassa = require('../../libs/payments/freeKassa'),
-    md5 = require('md5');
+    md5 = require('md5'),
+    config = require('../../config/config');
 
 router.post('/genURL', token__module.isValid, (req, res) => {
 
+    const userID = req.decoded._;
+
     const method = req.body.method;
-    const amount = req.body.amount;
+    const ruble = parseInt(req.body.ruble);
+    const silver = parseInt(req.body.silver);
 
     if (method === undefined || method === '' || method === null)
         return res.json({ error: 'Argument method is not exists' });
 
-    if (amount === undefined || amount === '' || amount === null)
-        return res.json({ error: 'Argument amount is not exists' });
+    if (ruble === undefined || ruble === '' || ruble === null)
+        return res.json({ error: 'Argument ruble is not exists' });
 
-    req.body.targets = req.body.targets || `Пополнение баланса игрока ${req.decoded.login} ## OILMAN.IO`;
-    req.body.formcomment = req.body.formcomment || `OILMAN.IO`;
-    req.body.shortDest = req.body.shortDest || `OILMAN.IO ## Пополнение счета`;
+    if (silver === undefined || silver === '' || silver === null)
+        return res.json({ error: 'Argument silver is not exists' });
 
-    req.body.label = md5(req.decoded.login + '::' + req.decoded.email + '::' + Date.now());
+    if ((ruble <= 0 || silver <= 0) || (silver !== (ruble * config.course.silver))) {
 
-    //req.body.successURL = `https://oilman.io/payments/success`;
-    req.body.successURL = `http://localhost:4200/cabinet/finance`;
-    req.body.needEmail = req.decoded.email;
-
-    switch (method) {
-        case 'mastercard':
-            getURLYAMoney('mastercard', req, res);
-            break;
-
-        case 'visa':
-            getURLYAMoney('VISA', req, res);
-            break;
-
-        case 'yandexmoney':
-            getURLYAMoney('yandexmoney', req, res);
-            break;
-
-        default:
-            getFreeKassa(req, res);
-            break;
-            //return res.json({ error: 'Payment is not exists' });
+        return res.json({ error: 'Error in value of money' });
     }
+
+    const merchant = 'https://megakassa.ru/merchant/';
+    const shopSecret = '49bb25a087c496e1';
+
+    let params = {
+        shop_id: '',
+        amount: ruble,
+        currency: 'RUB',
+        description: 'Пополнение баланса | Tanks-Lab.com',
+        debug: 1
+    };
+
+    const genOrderID = `${(Date.now().toString(36).substr(2, 4) + Math.random().toString(36).substr(2, 4)).toUpperCase()}`;
+
+    const paramsSign = [
+        params.shop_id,
+        params.amount,
+        params.currency,
+        params.description,
+        genOrderID,
+        '',
+        '',
+        params.debug,
+        shopSecret
+    ];
+
+    const signature = md5( `${shopSecret}${ md5(paramsSign.join(':')) }` );
+
+    params = Object.assign(params, { signature: signature });
+
+    const dbVar = {
+        user: userID,
+        order_id: genOrderID,
+        amount: params.amount,
+        creation_time: Date.now(),
+        signature: signature
+    };
+
+    req.db.collection('payments').insertOne(dbVar, (err, status) => {
+
+        if (err) {
+
+            return res.json({ error: err });
+        }
+
+        return res.json({ url: merchant, params: params });
+    });
 });
 
 module.exports = router;

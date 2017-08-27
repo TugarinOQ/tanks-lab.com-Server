@@ -43,10 +43,14 @@ router.post('/register', (req, res) => {
                     username: username,
                     password: crypt.hash,
                     regDate: Date.now(),
-                    silver: 0,
-                    gold: 0,
-                    bons: 0,
-                    practice: 0
+                    servers: {
+                        ussr: {
+                            silver: 0,
+                            gold: 0,
+                            bons: 0,
+                            practice: 0
+                        }
+                    }
                 }, (err, user) => {
 
                     if (err)
@@ -54,18 +58,35 @@ router.post('/register', (req, res) => {
 
                     req.db.collection('vehicles_ussr').findOne({name: 'R11_MS-1'}, (err, tank) => {
 
+                        Object.assign( tank, {
+                            practice: 0,
+                            buyDate: Date.now(),
+                            researchedDate: Date.now()
+                        } );
+
                         req.db.collection('hangars').insertOne({
 
                             user: user.insertedId,
                             server: server,
                             countSeats: 5,
-                            vehicles: [ tank ]
+                            vehicles: { 'R11_MS-1': tank }
                         }, (err, item) => {
 
                             if (err)
                                 return res.json({ error: "Error Hangar" });
 
-                            return res.json({ success: "ok" });
+                            req.db.collection('research').insertOne({
+
+                                user: user.insertedId,
+                                server: server,
+                                vehicles: [ 'R11_MS-1' ]
+                            }, (err, item) => {
+
+                                if (err)
+                                    return res.json({ error: "Error Research" });
+
+                                return res.json({ success: "ok" });
+                            });
                         });
                     });
                 });
@@ -90,7 +111,10 @@ router.post('/login', (req, res) => {
         email: emailOrLogin
     }, (err, user) => {
 
-        if (err) throw err;
+        if (err) {
+
+            return res.json({ error: err });
+        }
 
         if (!user) {
             res.json({ error: 'Authentication failed. User not found.' });
@@ -139,13 +163,34 @@ router.get('/info', token__module.isValid, (req, res) => {
             return censorWord(arr[0]) + "@" + arr[1];
         };
 
-        const data = {
-            name: user.name,
-            username: user.username,
+        let data = Object.assign(user, {
             email: censorEmail(user.email),
-            balance: user.balance || 0.00,
-            balanceOut: user.balanceOut || 0.00,
             dayOnProject: dayOnProject
+        });
+
+        delete data._id;
+        delete data.password;
+
+        res.json(data);
+    });
+});
+
+router.get('/balance', token__module.isValid, (req, res) => {
+
+    const email = req.decoded.email;
+    const server = req.decoded.server;
+
+    req.db.collection('users').findOne({
+        email: email
+    }, (err, user) => {
+
+        if (err) throw err;
+
+        const data = {
+            bons: user.servers[server].bons,
+            silver: user.servers[server].silver,
+            gold: user.servers[server].gold,
+            practice: user.servers[server].practice
         };
 
         res.json(data);
