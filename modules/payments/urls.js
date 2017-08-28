@@ -32,22 +32,23 @@ router.post('/genURL', token__module.isValid, (req, res) => {
     const merchant = 'https://megakassa.ru/merchant/';
     const shopSecret = 'b3afe9b9bfd89bbb';
 
+    const genOrderID = `${(Date.now().toString(36).substr(2, 4) + Math.random().toString(36).substr(2, 4)).toUpperCase()}`;
+
     let params = {
         shop_id: 1916,
+        order_id: genOrderID,
         amount: ruble,
         currency: 'RUB',
         description: 'Пополнение баланса | Tanks-Lab.com',
         debug: 1
     };
 
-    const genOrderID = `${(Date.now().toString(36).substr(2, 4) + Math.random().toString(36).substr(2, 4)).toUpperCase()}`;
-
     const paramsSign = [
         params.shop_id,
         params.amount,
         params.currency,
         params.description,
-        genOrderID,
+        params.order_id,
         '',
         '',
         params.debug,
