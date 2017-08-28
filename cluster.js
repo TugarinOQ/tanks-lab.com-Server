@@ -18,7 +18,7 @@ app.use((req, res, next) => {
 //mongoose.connect('mongodb://test:test@ds121192.mlab.com:21192/oilman__test');
 function connectDB(req, res, next) {
 
-    new MongoClient.connect('mongodb://admin:TBFydy86702@node38295-tankslabserver.mircloud.host:27017/tanks-lab', (err, db) => {
+    new MongoClient.connect('mongodb://admin:TBFydy86702@node38295-tankslabserver.mircloud.host:11056/tanks-lab', (err, db) => {
 
         if (err) {
 
