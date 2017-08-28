@@ -30,10 +30,10 @@ router.post('/genURL', token__module.isValid, (req, res) => {
     }
 
     const merchant = 'https://megakassa.ru/merchant/';
-    const shopSecret = '49bb25a087c496e1';
+    const shopSecret = 'b3afe9b9bfd89bbb';
 
     let params = {
-        shop_id: '',
+        shop_id: 1916,
         amount: ruble,
         currency: 'RUB',
         description: 'Пополнение баланса | Tanks-Lab.com',
