@@ -18,7 +18,7 @@ app.use((req, res, next) => {
 //mongoose.connect('mongodb://test:test@ds121192.mlab.com:21192/oilman__test');
 function connectDB(req, res, next) {
 
-    new MongoClient.connect('mongodb://test:test@oilman-shard-00-00-slnmp.mongodb.net:27017,oilman-shard-00-01-slnmp.mongodb.net:27017,oilman-shard-00-02-slnmp.mongodb.net:27017/tankslab?ssl=true&replicaSet=oilman-shard-0&authSource=admin', (err, db) => {
+    new MongoClient.connect('mongodb://admin:TBFydy86702@mongodb38295-tankslabserver.mircloud.host:27017/tanks-lab?ssl=true&authSource=admin', (err, db) => {
 
         if (err) {
 
