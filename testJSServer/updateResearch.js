@@ -7,7 +7,7 @@ const express = require('express'),
 
 let req = { id: null, ObjectId: null };
 
-MongoClient.connect('mongodb://test:test@oilman-shard-00-00-slnmp.mongodb.net:27017,oilman-shard-00-01-slnmp.mongodb.net:27017,oilman-shard-00-02-slnmp.mongodb.net:27017/tankslab?ssl=true&replicaSet=oilman-shard-0&authSource=admin', (err, db) => {
+MongoClient.connect('mongodb://tankslab:TBFydy86702@136.144.28.112:27017/tankslab', (err, db) => {
 
     if (err) {
 
