@@ -40,40 +40,41 @@ router.post('/genURL', token__module.isValid, (req, res) => {
         debug: 1
     };
 
-    const genOrderID = `${(Date.now().toString(36).substr(2, 4) + Math.random().toString(36).substr(2, 4)).toUpperCase()}`;
+    req.db.collection('payments').count({}, (err, count) => {
 
-    const paramsSign = [
-        params.shop_id,
-        params.amount,
-        params.currency,
-        params.description,
-        genOrderID,
-        '',
-        '',
-        params.debug,
-        shopSecret
-    ];
+        const paramsSign = [
+            params.shop_id,
+            params.amount,
+            params.currency,
+            params.description,
+            count,
+            '',
+            '',
+            params.debug,
+            shopSecret
+        ];
 
-    const signature = md5( `${shopSecret}${ md5(paramsSign.join(':')) }` );
+        const signature = md5( `${shopSecret}${ md5(paramsSign.join(':')) }` );
 
-    params = Object.assign(params, { signature: signature });
+        params = Object.assign(params, { signature: signature });
 
-    const dbVar = {
-        user: userID,
-        order_id: genOrderID,
-        amount: params.amount,
-        creation_time: Date.now(),
-        signature: signature
-    };
+        const dbVar = {
+            user: userID,
+            order_id: count,
+            amount: params.amount,
+            creation_time: Date.now(),
+            signature: signature
+        };
 
-    req.db.collection('payments').insertOne(dbVar, (err, status) => {
+        req.db.collection('payments').insertOne(dbVar, (err, status) => {
 
-        if (err) {
+            if (err) {
 
-            return res.json({ error: err });
-        }
+                return res.json({ error: err });
+            }
 
-        return res.json({ url: merchant, params: params });
+            return res.json({ url: merchant, params: params });
+        });
     });
 });
 
