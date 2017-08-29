@@ -34,7 +34,7 @@ router.post('/notification', token__module.isValid, (req, res) => {
                 return res.json({ error: err });
             }
 
-            console.log(IP !== '5.196.121.217' || (amount !== response.amount) || (signature !== response.signature));
+            console.log(IP, '5.196.121.217', amount, response.amount, signature, response.signature, IP !== '5.196.121.217' || (amount !== response.amount) || (signature !== response.signature));
 
             if (IP !== '5.196.121.217' || (amount !== response.amount) || (signature !== response.signature)) {
 
