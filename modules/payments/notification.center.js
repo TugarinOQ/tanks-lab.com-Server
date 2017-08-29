@@ -36,13 +36,13 @@ router.post('/notification', token__module.isValid, (req, res) => {
             }
 
             const params = {
-                amount_shop: response.amount_shop,
-                amount_client: response.amount_client,
-                payment_method_id: response.payment_method_id,
-                payment_time: response.payment_time,
-                client_email: response.client_email,
-                status: response.status,
-                debug: response.debug
+                amount_shop: req.body.amount_shop,
+                amount_client: req.body.amount_client,
+                payment_method_id: req.body.payment_method_id,
+                payment_time: req.body.payment_time,
+                client_email: req.body.client_email,
+                status: req.body.status,
+                debug: req.body.debug
             };
 
             req.db.collection('payments').updateOne(
@@ -58,6 +58,11 @@ router.post('/notification', token__module.isValid, (req, res) => {
                     if (err) {
 
                         return res.json({ error: err });
+                    }
+
+                    if (req.body.status === 'fail') {
+
+                        return res.json({ error: 'payment is fail' });
                     }
 
                     req.db.collection('users').findOne({ _id: req.ObjectId(userID), }, (err, user) => {
