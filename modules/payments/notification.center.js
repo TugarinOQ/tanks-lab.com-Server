@@ -18,7 +18,12 @@ router.post('/notification', token__module.isValid, (req, res) => {
     const amount = req.body.amount;
     const signature = req.body.signature;
 
-    const IP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const IP = (req.headers['x-forwarded-for'] ||
+        req.connection.remoteAddress ||
+        req.socket.remoteAddress ||
+        req.connection.socket.remoteAddress).split(",")[0];
+
+    const shopSecret = 'b3afe9b9bfd89bbb';
 
     req.db.collection('payments').findOne(
         {
@@ -34,9 +39,25 @@ router.post('/notification', token__module.isValid, (req, res) => {
                 return res.json({ error: err });
             }
 
-            console.log(IP, '5.196.121.217', amount, response.amount, signature, response.signature, IP !== '5.196.121.217' || (amount !== response.amount) || (signature !== response.signature));
+            const respSignature = md5([
+                req.body.uid,
+                response.amount,
+                req.body.amount_shop,
+                req.body.amount_client,
+                req.body.currency,
+                response.order_id,
+                req.body.payment_method_id,
+                req.body.creation_time,
+                req.body.payment_time,
+                req.body.client_email,
+                req.body.status,
+                req.body.debug,
+                shopSecret
+            ].join(':'));
 
-            if (IP !== '5.196.121.217' || (amount !== response.amount) || (signature !== response.signature)) {
+            console.log(IP, '5.196.121.217', amount, response.amount, signature, respSignature, IP !== '5.196.121.217' || (amount !== response.amount) || (signature !== respSignature));
+
+            if (IP !== '5.196.121.217' || (amount !== response.amount) || (signature !== respSignature)) {
 
                 return res.json({ error: 'Invalid signature' });
             }
