@@ -28,7 +28,7 @@ router.post('/notification', token__module.isValid, (req, res) => {
             order_id: order_id
         },
         (err, response) => {
-            
+
             if (err) {
 
                 return res.json({ error: err });
@@ -51,9 +51,9 @@ router.post('/notification', token__module.isValid, (req, res) => {
                 shopSecret
             ].join(':'));
 
-            console.log(IP, '5.196.121.217', amount, response.amount, signature, respSignature, IP !== '5.196.121.217', (amount !== response.amount), (signature !== respSignature));
+            console.log(IP, '5.196.121.217', `${amount}`, response.amount, signature, respSignature, IP !== '5.196.121.217', (amount !== response.amount), (signature !== respSignature));
 
-            if (IP !== '5.196.121.217' || (amount !== response.amount) || (signature !== respSignature)) {
+            if (IP !== '5.196.121.217' || (`${amount}` !== response.amount) || (signature !== respSignature)) {
 
                 return res.json({ error: 'Invalid signature' });
             }
