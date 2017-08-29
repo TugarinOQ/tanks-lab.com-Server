@@ -24,9 +24,14 @@ router.post('/genURL', token__module.isValid, (req, res) => {
     if (silver === undefined || silver === '' || silver === null)
         return res.json({ error: 'Argument silver is not exists' });
 
-    if ((ruble <= 0 || silver <= 0) || (silver !== parseFloat(ruble * config.course.silver))) {
+    if ((silver <= 0) || (silver !== parseFloat(ruble * config.course.silver))) {
 
         return res.json({ error: 'Error in value of money' });
+    }
+
+    if (ruble < 2) {
+
+        return res.json({ error: 'Min value = 2 RUB' });
     }
 
     const merchant = 'https://megakassa.ru/merchant/';
