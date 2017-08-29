@@ -51,15 +51,11 @@ router.post('/notification', token__module.isValid, (req, res) => {
                 shopSecret
             ].join(':'));
 
-            console.log(IP, '5.196.121.217', typeof amount, typeof `${response.amount}`, amount, `${response.amount}`, signature, respSignature, IP !== '5.196.121.217', (amount !== `${response.amount}`), (signature !== respSignature));
-
             if (IP !== '5.196.121.217' || (amount !== `${response.amount}`) || (signature !== respSignature)) {
 
                 return res.json({ error: 'Invalid signature' });
             }
-
-            console.log('RESPONSE', response);
-
+            
             const params = Object.assign(response, {
                 amount_shop: req.body.amount_shop,
                 amount_client: req.body.amount_client,
