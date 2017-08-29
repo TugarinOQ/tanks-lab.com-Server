@@ -18,6 +18,9 @@ router.post('/notification', token__module.isValid, (req, res) => {
 
     const IP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
+    console.log(req.query);
+    console.log(req.body);
+
     req.db.collection('payments').findOne(
         {
             user: userID,
