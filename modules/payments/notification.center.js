@@ -12,14 +12,11 @@ router.post('/notification', token__module.isValid, (req, res) => {
     const userID = req.decoded._;
     const server = req.decoded.server;
 
-    const order_id = res.query.order_id;
+    const order_id = req.body.order_id;
     const amount = req.body.amount;
     const signature = req.body.signature;
 
     const IP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-
-    console.log(req.query);
-    console.log(req.body);
 
     req.db.collection('payments').findOne(
         {
