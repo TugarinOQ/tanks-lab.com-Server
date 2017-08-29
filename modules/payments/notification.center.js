@@ -18,15 +18,7 @@ router.post('/notification', token__module.isValid, (req, res) => {
     const amount = req.body.amount;
     const signature = req.body.signature;
 
-    const IP = (req.headers['x-forwarded-for'] ||
-        req.connection.remoteAddress ||
-        req.socket.remoteAddress ||
-        req.connection.socket.remoteAddress).split(",")[0];
-
-    console.log(`IP:`);
-    console.log(req.headers);
-    console.log(req.connection);
-    console.log(req.socket);
+    const IP = req.headers['x-real-ip'];
 
     const shopSecret = 'b3afe9b9bfd89bbb';
 
@@ -36,8 +28,6 @@ router.post('/notification', token__module.isValid, (req, res) => {
             order_id: order_id
         },
         (err, response) => {
-
-            console.log(err);
 
             if (err) {
 
@@ -60,8 +50,6 @@ router.post('/notification', token__module.isValid, (req, res) => {
                 req.body.debug,
                 shopSecret
             ].join(':'));
-
-            console.log(IP, '5.196.121.217', amount, response.amount, signature, respSignature, IP !== '5.196.121.217', (amount !== response.amount), (signature !== respSignature));
 
             if (IP !== '5.196.121.217' || (amount !== response.amount) || (signature !== respSignature)) {
 
