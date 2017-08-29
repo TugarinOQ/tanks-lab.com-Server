@@ -12,7 +12,7 @@ router.post('/notification', token__module.isValid, (req, res) => {
     const userID = req.decoded._;
     const server = req.decoded.server;
 
-    const order_id = res.body.order_id;
+    const order_id = res.query.order_id;
     const amount = req.body.amount;
     const signature = req.body.signature;
 
