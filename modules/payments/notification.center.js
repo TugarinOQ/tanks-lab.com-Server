@@ -55,7 +55,7 @@ router.post('/notification', token__module.isValid, (req, res) => {
 
                 return res.json({ error: 'Invalid signature' });
             }
-            
+
             const params = Object.assign(response, {
                 amount_shop: req.body.amount_shop,
                 amount_client: req.body.amount_client,
