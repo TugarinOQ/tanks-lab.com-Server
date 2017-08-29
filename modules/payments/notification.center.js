@@ -23,6 +23,17 @@ router.post('/notification', token__module.isValid, (req, res) => {
         req.socket.remoteAddress ||
         req.connection.socket.remoteAddress).split(",")[0];
 
+    console.log(`IP:`);
+    console.log(req.headers['HTTP_X_CLUSTER_CLIENT_IP']);
+    console.log(req.headers['HTTP_X_FORWARDED_FOR']);
+    console.log(req.headers['HTTP_X_FORWARDED']);
+    console.log(req.headers['HTTP_FORWARDED_FOR']);
+    console.log(req.headers['HTTP_FORWARDED']);
+    console.log(req.headers['HTTP_CLIENT_IP']);
+    console.log(req.connection.remoteAddress);
+    console.log(req.socket.remoteAddress);
+    console.log(req.connection.socket.remoteAddress);
+
     const shopSecret = 'b3afe9b9bfd89bbb';
 
     req.db.collection('payments').findOne(
@@ -47,6 +58,7 @@ router.post('/notification', token__module.isValid, (req, res) => {
                 req.body.currency,
                 response.order_id,
                 req.body.payment_method_id,
+                req.body.payment_method_title,
                 req.body.creation_time,
                 req.body.payment_time,
                 req.body.client_email,
@@ -55,7 +67,7 @@ router.post('/notification', token__module.isValid, (req, res) => {
                 shopSecret
             ].join(':'));
 
-            console.log(IP, '5.196.121.217', amount, response.amount, signature, respSignature, IP !== '5.196.121.217' || (amount !== response.amount) || (signature !== respSignature));
+            console.log(IP, '5.196.121.217', amount, response.amount, signature, respSignature, IP !== '5.196.121.217', (amount !== response.amount), (signature !== respSignature));
 
             if (IP !== '5.196.121.217' || (amount !== response.amount) || (signature !== respSignature)) {
 
