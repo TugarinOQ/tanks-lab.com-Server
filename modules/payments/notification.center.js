@@ -24,15 +24,9 @@ router.post('/notification', token__module.isValid, (req, res) => {
         req.connection.socket.remoteAddress).split(",")[0];
 
     console.log(`IP:`);
-    console.log(req.headers['HTTP_X_CLUSTER_CLIENT_IP']);
-    console.log(req.headers['HTTP_X_FORWARDED_FOR']);
-    console.log(req.headers['HTTP_X_FORWARDED']);
-    console.log(req.headers['HTTP_FORWARDED_FOR']);
-    console.log(req.headers['HTTP_FORWARDED']);
-    console.log(req.headers['HTTP_CLIENT_IP']);
-    console.log(req.connection.remoteAddress);
-    console.log(req.socket.remoteAddress);
-    console.log(req.connection.socket.remoteAddress);
+    console.log(req.headers);
+    console.log(req.connection);
+    console.log(req.socket);
 
     const shopSecret = 'b3afe9b9bfd89bbb';
 
