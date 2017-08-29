@@ -37,7 +37,9 @@ router.post('/notification', token__module.isValid, (req, res) => {
                 return res.json({ error: 'Invalid signature' });
             }
 
-            const params = {
+            console.log('RESPONSE', response);
+
+            const params = Object.assign(response, {
                 amount_shop: req.body.amount_shop,
                 amount_client: req.body.amount_client,
                 payment_method_id: req.body.payment_method_id,
@@ -45,7 +47,7 @@ router.post('/notification', token__module.isValid, (req, res) => {
                 client_email: req.body.client_email,
                 status: req.body.status,
                 debug: req.body.debug
-            };
+            });
 
             req.db.collection('payments').updateOne(
                 {
