@@ -12,22 +12,18 @@ router.post('/genURL', token__module.isValid, (req, res) => {
     const userID = req.decoded._;
 
     const method = req.body.method;
-    const ruble = parseInt(req.body.ruble);
+    const ruble = req.body.ruble;
     const silver = parseInt(req.body.silver);
 
     if (method === undefined || method === '' || method === null)
         return res.json({ error: 'Argument method is not exists' });
 
-    if (ruble === undefined || ruble === '' || ruble === null)
+    if (ruble === undefined || ruble === '' || ruble === null || typeof ruble !== "number")
         return res.json({ error: 'Argument ruble is not exists' });
 
     if (silver === undefined || silver === '' || silver === null)
         return res.json({ error: 'Argument silver is not exists' });
-
-    console.log(ruble, ruble <= 0, typeof ruble);
-    console.log(silver, silver <= 0, typeof silver);
-    console.log(silver, ruble * config.course.silver, silver !== (ruble * config.course.silver));
-
+    
     if ((ruble <= 0 || silver <= 0) || (silver !== (ruble * config.course.silver))) {
 
         return res.json({ error: 'Error in value of money' });
