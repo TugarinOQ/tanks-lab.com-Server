@@ -25,14 +25,21 @@ router.get('/slot', token__module.isValid, (req, res) => {
                 return res.json({ error: err });
             }
 
-            if (user.silver < config.price.slot) {
+            if (user.servers[server].silver < config.price.slot) {
 
                 return res.json({ error: 'low money' });
             }
 
+            const updServers = user.servers;
+            updServers[server].silver -= config.price.slot;
+
             req.db.collection('users').updateOne(
                 { _id: req.ObjectId(userID) },
-                { $set: { silver: user.silver - config.price.slot } },
+                {
+                    $set: {
+                        servers: updServers
+                    }
+                },
                 (err, update) => {
 
                     if (err) {
@@ -42,7 +49,11 @@ router.get('/slot', token__module.isValid, (req, res) => {
 
                     req.db.collection('hangars').updateOne(
                         { user: req.ObjectId(userID), server: server },
-                        { $set: { countSeats: countSeats + 1 } },
+                        {
+                            $set: {
+                                countSeats: countSeats + 1
+                            }
+                        },
                         (err, update) => {
 
                             if (err) {

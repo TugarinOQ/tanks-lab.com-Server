@@ -8,18 +8,18 @@ module.exports = {
         silver: 100
     },
     price: {
-        slot: 300
+        slot: 30000
     },
     time: {
         research: 138,
-        researchModule: 480,
-        building: 300
+        researchModule: 480
     },
     income: {
-        default: 70,
-        equipment: 4,
-        modules: 3,
-        crew: 3,
+        countMonth: 5,
+        default: 0.70,
+        equipment: 0.04,
+        modules: 0.03,
+        crew: 0.03,
         skin: 0.33
     }
 };

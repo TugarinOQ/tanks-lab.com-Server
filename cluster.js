@@ -74,7 +74,7 @@ app.get('/token/valid', token__module.isValid, (req, res) => {
         });
     });
 });
-app.use('/hangar', require('./modules/hangar/list'), require('./modules/hangar/slot'));
+app.use('/hangar', require('./modules/hangar/list'), require('./modules/hangar/slot'), require('./modules/hangar/outGold'));
 app.use('/shop', require('./modules/shop'));
 app.use('/payments', require('./modules/payments/urls'), require('./modules/payments/notification.center'));
 app.use('/research', require('./modules/research'));

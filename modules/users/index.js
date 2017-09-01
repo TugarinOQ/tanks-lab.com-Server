@@ -12,6 +12,8 @@ router.post('/register', (req, res) => {
     const confirm = req.body.confirm || "";
     const server = req.body.server || "ussr";
 
+    const referral = (req.body.referral) ? ( req.body.referral !== username ) ? req.body.referral : 'me' : 'me';
+
     if (!checkRegExEmail(email)) return res.json({ error: "Incorrect email" });
     if (!checkRegExLogin(username)) return res.json({ error: "Incorrect login" });
     if (pass.length < 8 || (pass !== confirm)) return res.json({ error: "Incorrect password" });
@@ -38,20 +40,27 @@ router.post('/register', (req, res) => {
                     return res.json('Error in generate password!');
                 }
 
-                req.db.collection('users').insertOne({
-                    email: email,
-                    username: username,
-                    password: crypt.hash,
-                    regDate: Date.now(),
-                    servers: {
-                        ussr: {
-                            silver: 0,
-                            gold: 0,
-                            bons: 0,
-                            practice: 0
+                const _user = Object.assign(
+                    {
+                        email: email,
+                        username: username,
+                        password: crypt.hash,
+                        regDate: Date.now(),
+                        servers: {
+                            ussr: {
+                                silver: 0,
+                                gold: 0,
+                                bons: 0,
+                                practice: 0
+                            }
                         }
+                    },
+                    {
+                       referral: referral
                     }
-                }, (err, user) => {
+                );
+
+                req.db.collection('users').insertOne(_user, (err, user) => {
 
                     if (err)
                         return res.json({ error: "Duplicate username or email" });

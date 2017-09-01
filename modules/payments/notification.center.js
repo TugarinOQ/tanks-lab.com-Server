@@ -86,27 +86,18 @@ router.post('/notification', token__module.isValid, (req, res) => {
 
                     req.db.collection('users').findOne({ _id: req.ObjectId(userID), }, (err, user) => {
 
-                        const updServers = user.servers;
-                        updServers[server].silver += (amount * config.course.silver);
+                        updBalance({ req: req, res: res, user: user, amount: amount, cb: (referral) => {
 
-                        req.db.collection('users').updateOne(
-                            {
-                                _id: req.ObjectId(userID)
-                            },
-                            {
-                                $set: {
-                                    servers: updServers
-                                }
-                            },
-                            (err, user) => {
+                            if (referral) {
 
-                                if (err) {
+                                updBalance({ req: req, res: res, user: referral, amount: amount, cb: () => {
 
-                                    return res.json({ error: err });
-                                }
+                                    return res.send('ok');
+                                } });
+                            }
 
-                                return res.send('ok');
-                            });
+                            return res.send('ok');
+                        } });
                     });
                 }
             );
@@ -114,5 +105,38 @@ router.post('/notification', token__module.isValid, (req, res) => {
     );
 
 });
+
+function updBalance({ req, res, user, amount, cb }) {
+
+    const server = req.decoded.server;
+
+    const updServers = user.servers;
+    updServers[server].silver += (amount * config.course.silver);
+
+    req.db.collection('users').updateOne(
+        {
+            _id: req.ObjectId(user)
+        },
+        {
+            $set: {
+                servers: updServers
+            }
+        },
+        (err, user) => {
+
+            if (err) {
+
+                return res.json({error: err});
+            }
+
+            if (user) {
+
+                return cb(undefined);
+            }
+
+            cb(user.referral !== 'me' ? user.referral : undefined);
+        }
+    );
+}
 
 module.exports = router;
