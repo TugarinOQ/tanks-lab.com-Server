@@ -44,7 +44,7 @@ router.post('/genURL', token__module.isValid, (req, res) => {
         order_id: genOrderID,
         amount: ruble,
         currency: 'RUB',
-        description: 'Пополнение баланса | Tanks-Lab.com',
+        description: `Пополнение баланса | Tanks-Lab.com`,
         debug: 1
     };
 

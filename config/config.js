@@ -5,10 +5,14 @@
 module.exports = {
 
     course: {
-        silver: 100
+        silver: 100 // 1 rub -> 100 silver
+    },
+    referral: {
+        firstLevel: 0.05 // 5%
     },
     price: {
-        slot: 30000
+        slot: 30000, // 30.000 silvers
+        fastResearch: 0.50 // 50%
     },
     time: {
         research: 138,
@@ -16,10 +20,9 @@ module.exports = {
     },
     income: {
         countMonth: 5,
-        default: 0.70,
-        equipment: 0.04,
-        modules: 0.03,
-        crew: 0.03,
-        skin: 0.33
+        default: 0.70, // 70%
+        equipment: 0.04, // 4%
+        modules: 0.03, // 3%
+        crew: 0.03 // 3%
     }
 };

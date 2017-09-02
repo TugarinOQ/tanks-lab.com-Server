@@ -90,7 +90,7 @@ router.post('/notification', token__module.isValid, (req, res) => {
 
                             if (referral) {
 
-                                updBalance({ req: req, res: res, user: referral, amount: amount, cb: () => {
+                                updBalance({ req: req, res: res, user: referral, referral: true, amount: amount, cb: () => {
 
                                     return res.send('ok');
                                 } });
@@ -106,12 +106,12 @@ router.post('/notification', token__module.isValid, (req, res) => {
 
 });
 
-function updBalance({ req, res, user, amount, cb }) {
+function updBalance({ req, res, user, referral = false, amount, cb }) {
 
     const server = req.decoded.server;
 
     const updServers = user.servers;
-    updServers[server].silver += (amount * config.course.silver);
+    updServers[server].silver += (referral) ? ((amount * config.course.silver) / (config.referral.firstLevel)) : (amount * config.course.silver);
 
     req.db.collection('users').updateOne(
         {

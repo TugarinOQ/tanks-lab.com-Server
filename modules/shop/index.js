@@ -43,8 +43,8 @@ router.post('/list', token__module.isValid, (req, res) => {
 
                 _filterTanks.map((tank) => {
 
-                    tank.visibleToSell = (tank.price > (user.servers[server].silver || 0)) || research.vehicles.indexOf(tank.name) === -1;
-                    tank.availableSell = (tank.price <= (user.servers[server].silver || 0)) || research.vehicles.indexOf(tank.name) > -1;
+                    tank.visibleToSell = research.vehicles.indexOf(tank.name) > -1;
+                    tank.availableSell = (tank.price <= (user.servers[server].silver || 0));
 
                     tank.sell = parseInt(((tank.price / 100)  * 0.70) / 5);
 
@@ -64,6 +64,7 @@ router.post('/buyTank', token__module.isValid, (req, res) => {
 
     const tankID = req.body.tankID;
     const additionSlot = req.body.slot;
+    const fastResearch = req.body.fastResearch;
 
     req.db.collection('vehicles_' + server).findOne({ _id: req.ObjectId(tankID) }, (err, tank) => {
 
@@ -86,7 +87,7 @@ router.post('/buyTank', token__module.isValid, (req, res) => {
                     return res.json({ error: err });
                 }
 
-                if (!research.vehicles.indexOf(tank.name)) {
+                if (research.vehicles.indexOf(tank.name) === -1) {
 
                     return res.json({ error: 'Tank is not a researched.' });
                 }
@@ -99,7 +100,7 @@ router.post('/buyTank', token__module.isValid, (req, res) => {
                     }
 
                     const silver = user.servers[server].silver;
-                    const totalPrice = tank.price + ( (additionSlot) ? config.price.slot : 0 );
+                    const totalPrice = tank.price + ( (additionSlot) ? config.price.slot : 0 ) + ( (fastResearch) ? (tank.price * config.price.fastResearch) : 0 );
 
                     if (totalPrice > silver) {
 
