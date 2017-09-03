@@ -1,11 +1,9 @@
 const express = require('express'),
     router = express.Router(),
-    User = require('../../models/user'),
-    jwt = require('jsonwebtoken'),
-    bcrypt = require('bcrypt-nodejs'),
     token__module = require('../token'),
     md5 = require('md5'),
-    config = require('../../config/config');
+    config = require('../../config/config'),
+    megaKassaAPI = require('../../libs/payments/megakassa');
 
 router.post('/notification', token__module.isValid, (req, res) => {
 
@@ -15,10 +13,6 @@ router.post('/notification', token__module.isValid, (req, res) => {
     const order_id = req.body.order_id;
     const amount = req.body.amount;
     const signature = req.body.signature;
-
-    const IP = req.headers['x-real-ip'];
-
-    const shopSecret = 'b3afe9b9bfd89bbb';
 
     req.db.collection('payments').findOne(
         {
@@ -32,24 +26,9 @@ router.post('/notification', token__module.isValid, (req, res) => {
                 return res.json({ error: err });
             }
 
-            const respSignature = md5([
-                req.body.uid,
-                response.amount,
-                req.body.amount_shop,
-                req.body.amount_client,
-                req.body.currency,
-                response.order_id,
-                req.body.payment_method_id,
-                req.body.payment_method_title,
-                req.body.creation_time,
-                req.body.payment_time,
-                req.body.client_email,
-                req.body.status,
-                req.body.debug,
-                shopSecret
-            ].join(':'));
+            const respSignature = megaKassaAPI.genSignature.merchantNotify({ req: req, res: response });
 
-            if (IP !== '5.196.121.217' || (amount !== `${response.amount}`) || (signature !== respSignature)) {
+            if (megaKassaAPI.check.ip({ req: req }) || (amount !== `${response.amount}`) || (signature !== respSignature)) {
 
                 return res.json({ error: 'Invalid signature' });
             }
@@ -111,7 +90,12 @@ function updBalance({ req, res, user, referral = false, amount, cb }) {
     const server = req.decoded.server;
 
     const updServers = user.servers;
-    updServers[server].silver += (referral) ? ((amount * config.course.silver) / (config.referral.firstLevel)) : (amount * config.course.silver);
+
+    if (referral) {
+        updServers[server].gold += amount / (config.referral.firstLevel);
+    } else {
+        updServers[server].silver += amount * config.course.silver;
+    }
 
     req.db.collection('users').updateOne(
         {

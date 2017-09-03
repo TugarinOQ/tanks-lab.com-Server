@@ -80,9 +80,11 @@ router.post('/outGold', token__module.isValid, (req, res) => {
                     },
                     (err, user) => {
 
+                        const amount = { gold: outGold / 2, silver: (outGold / 2) * 100 };
 
                         const updServers = user.servers;
-                        updServers[server].gold += outGold;
+                        updServers[server].gold += amount.gold;
+                        updServers[server].silver += amount.silver;
 
                         req.db.collection('users').updateOne(
                             {_id: req.ObjectId(userID)},

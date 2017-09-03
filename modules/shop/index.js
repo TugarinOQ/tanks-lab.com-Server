@@ -136,6 +136,10 @@ router.post('/buyTank', token__module.isValid, (req, res) => {
 
                             if (err) {
 
+                                req.logger.log({ code: 0, user: user._id, operation: 'Update user', dateTime: Date.now(), props: {
+                                    research_id: research._id
+                                } });
+
                                 return res.json({error: err});
                             }
 

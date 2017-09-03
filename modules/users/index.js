@@ -79,20 +79,36 @@ router.post('/register', (req, res) => {
                             server: server,
                             countSeats: 5,
                             vehicles: { 'R11_MS-1': tank }
-                        }, (err, item) => {
+                        }, (err, hangar) => {
 
-                            if (err)
+                            if (err) {
+
+                                req.logger.log({ code: 0, user: user._id, section: 'users', operation: 'Create Hangar', dateTime: Date.now() });
+
                                 return res.json({ error: "Error Hangar" });
+                            }
+
+                            req.logger.log({ code: 1, user: user._id, section: 'users', operation: 'Create Hangar', dateTime: Date.now(), props: {
+                                hangar_id: hangar._id
+                            } });
 
                             req.db.collection('research').insertOne({
 
                                 user: user.insertedId,
                                 server: server,
                                 vehicles: [ 'R11_MS-1' ]
-                            }, (err, item) => {
+                            }, (err, research) => {
 
-                                if (err)
+                                if (err) {
+
+                                    req.logger.log({ code: 0, user: user._id, section: 'users', operation: 'Create Research', dateTime: Date.now() });
+
                                     return res.json({ error: "Error Research" });
+                                }
+
+                                req.logger.log({ code: 1, user: user._id, section: 'users', operation: 'Create Research', dateTime: Date.now(), props: {
+                                    research_id: research._id
+                                } });
 
                                 return res.json({ success: "ok" });
                             });
@@ -122,10 +138,17 @@ router.post('/login', (req, res) => {
 
         if (err) {
 
+            req.logger.log({ code: 0, user: user._id, section: 'users', operation: 'Any error', dateTime: Date.now(), props: {
+                error: err
+            }});
+
             return res.json({ error: err });
         }
 
         if (!user) {
+
+            req.logger.log({ code: 0, user: user._id, section: 'users', operation: 'Auth fail', dateTime: Date.now()});
+
             res.json({ error: 'Authentication failed. User not found.' });
         } else if (user) {
 
@@ -135,6 +158,8 @@ router.post('/login', (req, res) => {
                 const token = jwt.sign({ _: user._id, login: user.username, email: user.email, server: server }, 'yqawv8nqi5', {
                     expiresIn: '1 day' // expires in 24 hours
                 });
+
+                req.logger.log({ code: 1, user: user._id, section: 'users', operation: 'Auth success', dateTime: Date.now()});
 
                 res.json({
                     success: true,

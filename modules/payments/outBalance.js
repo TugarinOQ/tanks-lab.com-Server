@@ -1,13 +1,27 @@
 const express = require('express'),
     router = express.Router(),
+    User = require('../../models/user'),
+    jwt = require('jsonwebtoken'),
+    bcrypt = require('bcrypt-nodejs'),
     token__module = require('../token'),
+    md5 = require('md5'),
+    async = require('async'),
     config = require('../../config/config'),
     megaKassaAPI = require('../../libs/payments/megakassa');
 
-router.post('/genURL', token__module.isValid, (req, res) => {
+
+router.get('/getListPaymentMethod', token__module.isValid, (req, res) => {
 
     const userID = req.decoded._;
-    const userEMAIL = req.decoded.email;
+
+    const sign = megaKassaAPI.genSignature.withdraw({ amount: 10.0, debug: 1, comment: 'asd' });
+
+    res.json({ test: sign });
+});
+
+router.post('/outBalance', token__module.isValid, (req, res) => {
+
+    const userID = req.decoded._;
 
     const method = req.body.method;
     const ruble = parseFloat(req.body.ruble);
@@ -32,34 +46,52 @@ router.post('/genURL', token__module.isValid, (req, res) => {
         return res.json({ error: 'Min value = 2 RUB' });
     }
 
+    const merchant = 'https://megakassa.ru/merchant/';
+    const shopSecret = 'b3afe9b9bfd89bbb';
+
     const genOrderID = `${(Date.now().toString(36).substr(2, 4) + Math.random().toString(36).substr(2, 4)).toUpperCase()}`;
+
+    let params = {
+        shop_id: 1916,
+        order_id: genOrderID,
+        amount: ruble,
+        currency: 'RUB',
+        description: `Пополнение баланса | Tanks-Lab.com`,
+        debug: 1
+    };
+
+    const paramsSign = [
+        params.shop_id,
+        params.amount,
+        params.currency,
+        params.description,
+        params.order_id,
+        '',
+        '',
+        params.debug,
+        shopSecret
+    ];
+
+    const signature = md5( `${shopSecret}${ md5(paramsSign.join(':')) }` );
+
+    params = Object.assign(params, { signature: signature });
 
     const dbVar = {
         user: userID,
         order_id: genOrderID,
-        amount: ruble,
+        amount: params.amount,
         creation_time: Date.now(),
+        signature: signature
     };
 
-    req.db.collection('payments').insertOne(dbVar, (err) => {
+    req.db.collection('payments').insertOne(dbVar, (err, status) => {
 
         if (err) {
 
             return res.json({ error: err });
         }
 
-        return res.json({
-            url: megaKassaAPI.merchant({
-                order_id: genOrderID,
-                amount: ruble,
-                description: `Пополнение баланса (${userEMAIL}) | Tanks-Lab.com`,
-                debug: 1,
-                props: {
-                    token: req.body.token || req.query.token || req.headers['x-access-token']
-                }
-            })
-        });
-
+        return res.json({ url: merchant, params: params });
     });
 });
 

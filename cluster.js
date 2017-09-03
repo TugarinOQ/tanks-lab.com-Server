@@ -4,7 +4,8 @@ const express = require('express'),
     body__parser = require('body-parser'),
     app = express(),
     token__module = require('./modules/token'),
-    config = require('./config/config');
+    config = require('./config/config'),
+    loggerLog = require('./libs/logger.log');
 
 
 app.use((req, res, next) => {
@@ -38,6 +39,14 @@ function connectDB(req, res, next) {
 app.use((req, res, next) => {
 
     connectDB(req, res, next);
+});
+
+app.use((req) => {
+
+    const logger = loggerLog;
+    logger.db = req.db;
+
+    req.logs = logger;
 });
 
 app.use(body__parser.json());
@@ -76,7 +85,7 @@ app.get('/token/valid', token__module.isValid, (req, res) => {
 });
 app.use('/hangar', require('./modules/hangar/list'), require('./modules/hangar/slot'), require('./modules/hangar/outGold'));
 app.use('/shop', require('./modules/shop'));
-app.use('/payments', require('./modules/payments/urls'), require('./modules/payments/notification.center'));
+app.use('/payments', require('./modules/payments/urls'), require('./modules/payments/notification.center'), require('./modules/payments/outBalance'));
 app.use('/research', require('./modules/research'));
 app.use('/users', require('./modules/users'));
 // END ROUTING
