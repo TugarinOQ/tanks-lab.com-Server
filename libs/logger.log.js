@@ -1,7 +1,5 @@
 module.exports = {
     db: null,
-
-
     /*
     {
         code: 0, // fail
@@ -12,7 +10,7 @@ module.exports = {
         props: 'any variables'
     }
     */
-    log: ({ code, user, section, operation, dateTime, props }) => {
+    log: function({ code, user, section, operation, dateTime, props }) {
 
         const data = Object.assign({
             code: code,

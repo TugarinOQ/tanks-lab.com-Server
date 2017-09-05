@@ -41,25 +41,38 @@ router.post('/genURL', token__module.isValid, (req, res) => {
         creation_time: Date.now(),
     };
 
-    req.db.collection('payments').insertOne(dbVar, (err) => {
+    req.db.collection('users').findOne({ _id: req.ObjectId(userID) }, (err, user) => {
 
-        if (err) {
+        req.db.collection('payments').insertOne(dbVar, (err) => {
 
-            return res.json({ error: err });
-        }
+            if (err) {
 
-        return res.json({
-            url: megaKassaAPI.merchant({
+                req.logs.log({ code: 0, user: user, section: 'payments', operation: 'Create payments', dateTime: Date.now(), props: {
+                    order_id: genOrderID,
+                    amount: ruble
+                } });
+
+                return res.json({ error: err });
+            }
+
+            req.logs.log({ code: 1, user: user, section: 'payments', operation: 'Create payments', dateTime: Date.now(), props: {
                 order_id: genOrderID,
-                amount: ruble,
-                description: `Пополнение баланса (${userEMAIL}) | Tanks-Lab.com`,
-                debug: 1,
-                props: {
-                    token: req.body.token || req.query.token || req.headers['x-access-token']
-                }
-            })
-        });
+                amount: ruble
+            } });
 
+            return res.json({
+                url: megaKassaAPI.merchant({
+                    order_id: genOrderID,
+                    amount: ruble,
+                    description: `Пополнение баланса (${userEMAIL}) | Tanks-Lab.com`,
+                    debug: 1,
+                    props: {
+                        token: req.body.token || req.query.token || req.headers['x-access-token']
+                    }
+                })
+            });
+
+        });
     });
 });
 

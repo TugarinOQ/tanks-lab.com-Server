@@ -83,12 +83,12 @@ router.post('/register', (req, res) => {
 
                             if (err) {
 
-                                req.logger.log({ code: 0, user: user._id, section: 'users', operation: 'Create Hangar', dateTime: Date.now() });
+                                req.logs.log({ code: 0, user: user, section: 'users', operation: 'Create Hangar', dateTime: Date.now() });
 
                                 return res.json({ error: "Error Hangar" });
                             }
 
-                            req.logger.log({ code: 1, user: user._id, section: 'users', operation: 'Create Hangar', dateTime: Date.now(), props: {
+                            req.logs.log({ code: 1, user: user, section: 'users', operation: 'Create Hangar', dateTime: Date.now(), props: {
                                 hangar_id: hangar._id
                             } });
 
@@ -101,12 +101,12 @@ router.post('/register', (req, res) => {
 
                                 if (err) {
 
-                                    req.logger.log({ code: 0, user: user._id, section: 'users', operation: 'Create Research', dateTime: Date.now() });
+                                    req.logs.log({ code: 0, user: user, section: 'users', operation: 'Create Research', dateTime: Date.now() });
 
                                     return res.json({ error: "Error Research" });
                                 }
 
-                                req.logger.log({ code: 1, user: user._id, section: 'users', operation: 'Create Research', dateTime: Date.now(), props: {
+                                req.logs.log({ code: 1, user: user, section: 'users', operation: 'Create Research', dateTime: Date.now(), props: {
                                     research_id: research._id
                                 } });
 
@@ -138,7 +138,7 @@ router.post('/login', (req, res) => {
 
         if (err) {
 
-            req.logger.log({ code: 0, user: user._id, section: 'users', operation: 'Any error', dateTime: Date.now(), props: {
+            req.logs.log({ code: 0, user: user, section: 'users', operation: 'Any error', dateTime: Date.now(), props: {
                 error: err
             }});
 
@@ -147,7 +147,7 @@ router.post('/login', (req, res) => {
 
         if (!user) {
 
-            req.logger.log({ code: 0, user: user._id, section: 'users', operation: 'Auth fail', dateTime: Date.now()});
+            req.logs.log({ code: 0, user: user, section: 'users', operation: 'Auth fail', dateTime: Date.now()});
 
             res.json({ error: 'Authentication failed. User not found.' });
         } else if (user) {
@@ -159,7 +159,7 @@ router.post('/login', (req, res) => {
                     expiresIn: '1 day' // expires in 24 hours
                 });
 
-                req.logger.log({ code: 1, user: user._id, section: 'users', operation: 'Auth success', dateTime: Date.now()});
+                req.logs.log({ code: 1, user: user, section: 'users', operation: 'Auth success', dateTime: Date.now()});
 
                 res.json({
                     success: true,

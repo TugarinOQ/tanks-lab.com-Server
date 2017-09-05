@@ -58,8 +58,14 @@ router.post('/outGold', token__module.isValid, (req, res) => {
 
             const outGold = status;
 
+            if (outGold === 0) {
+
+                return res.json({ error: 'gold = 0' });
+            }
+
             const updVehicles = vehicles;
             vehicles[tankID].researchedDate = Date.now();
+            vehicles[tankID].practice = (outGold * 100);
 
             req.db.collection('hangars').updateOne(
                 {user: req.ObjectId(userID), server: server},

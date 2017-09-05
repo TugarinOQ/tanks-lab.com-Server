@@ -23,12 +23,23 @@ router.post('/notification', token__module.isValid, (req, res) => {
 
             if (err) {
 
+                req.logs.log({ code: 0, user: user, section: 'payments', operation: 'Payments notification', dateTime: Date.now(), props: {
+                    order_id: order_id,
+                    amount: amount
+                } });
+
                 return res.json({ error: err });
             }
 
             const respSignature = megaKassaAPI.genSignature.merchantNotify({ req: req, res: response });
 
-            if (megaKassaAPI.check.ip({ req: req }) || (amount !== `${response.amount}`) || (signature !== respSignature)) {
+            if (megaKassaAPI.checkIP({ req: req }) || (amount !== `${response.amount}`) || (signature !== respSignature)) {
+
+                req.logs.log({ code: 0, user: user, section: 'payments', operation: 'Payments notification / Check signature', dateTime: Date.now(), props: {
+                    order_id: order_id,
+                    amount: amount,
+                    signature: Object.assign(req.body, { respSign: respSignature })
+                } });
 
                 return res.json({ error: 'Invalid signature' });
             }
@@ -55,6 +66,12 @@ router.post('/notification', token__module.isValid, (req, res) => {
 
                     if (err) {
 
+                        req.logs.log({ code: 0, user: user, section: 'payments', operation: 'Payments notification / Update payments', dateTime: Date.now(), props: {
+                            order_id: order_id,
+                            amount: amount,
+                            signature: Object.assign(req.body, { respSign: respSignature })
+                        } });
+
                         return res.json({ error: err });
                     }
 
@@ -71,9 +88,23 @@ router.post('/notification', token__module.isValid, (req, res) => {
 
                                 updBalance({ req: req, res: res, user: referral, referral: true, amount: amount, cb: () => {
 
+                                    req.logs.log({ code: 1, user: user, section: 'payments', operation: 'Payments notification / Success', dateTime: Date.now(), props: {
+                                        referral: referral,
+                                        order_id: order_id,
+                                        amount: amount,
+                                        signature: Object.assign(req.body, { respSign: respSignature })
+                                    } });
+
                                     return res.send('ok');
                                 } });
                             }
+
+                            req.logs.log({ code: 1, user: user, section: 'payments', operation: 'Payments notification / Success', dateTime: Date.now(), props: {
+                                referral: referral,
+                                order_id: order_id,
+                                amount: amount,
+                                signature: Object.assign(req.body, { respSign: respSignature })
+                            } });
 
                             return res.send('ok');
                         } });
@@ -109,6 +140,12 @@ function updBalance({ req, res, user, referral = false, amount, cb }) {
         (err, user) => {
 
             if (err) {
+
+                req.logs.log({ code: 0, user: user, section: 'payments', operation: 'Payments notification / Update balance', dateTime: Date.now(), props: {
+                    amount: amount,
+                    referral: referral,
+                    signature: Object.assign(req.body)
+                } });
 
                 return res.json({error: err});
             }

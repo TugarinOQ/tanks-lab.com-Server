@@ -49,9 +49,12 @@ router.get('/get', token__module.isValid, (req, res) => {
 
                     let practice = 0;
 
-                    async.mapSeries(tank.parents, (parent) => {
+                    async.mapSeries(hangar.vehicles, (hangarVehicle) => {
 
-                        practice += tanks[parent].info.practice;
+                        if (hangarVehicle.name === vehicle.name) {
+
+                            practice += parseInt(Math.round(hangarVehicle.practice));
+                        }
                     });
 
                     Object.assign( _vehicle, { practice: practice } );
@@ -142,6 +145,13 @@ router.post('/open', token__module.isValid, (req, res) => {
 
                             if (err) {
 
+                                req.logs.log({ code: 0, user: user, section: 'research', operation: 'Research tank / Update User', dateTime: Date.now(), props: {
+                                    research_id: research._id,
+                                    hangar_id: hangar._id,
+                                    server: server,
+                                    vehicle: vehicle
+                                } });
+
                                 return res.json({ error: err });
                             }
 
@@ -169,6 +179,13 @@ router.post('/open', token__module.isValid, (req, res) => {
 
                                     if (err) {
 
+                                        req.logs.log({ code: 0, user: user, section: 'research', operation: 'Research tank / Update Hangar', dateTime: Date.now(), props: {
+                                            research_id: research._id,
+                                            hangar_id: hangar._id,
+                                            server: server,
+                                            vehicle: vehicle
+                                        } });
+
                                         return res.json({ error: err });
                                     }
 
@@ -187,8 +204,22 @@ router.post('/open', token__module.isValid, (req, res) => {
 
                                             if (err) {
 
+                                                req.logs.log({ code: 0, user: user, section: 'research', operation: 'Research tank / Update Research', dateTime: Date.now(), props: {
+                                                    research_id: research._id,
+                                                    hangar_id: hangar._id,
+                                                    server: server,
+                                                    vehicle: vehicle
+                                                } });
+
                                                 return res.json({ error: err });
                                             }
+
+                                            req.logs.log({ code: 1, user: user, section: 'research', operation: 'Research tank', dateTime: Date.now(), props: {
+                                                research_id: research._id,
+                                                hangar_id: hangar._id,
+                                                server: server,
+                                                vehicle: vehicle
+                                            } });
 
                                             return res.json({ success: true });
                                         }

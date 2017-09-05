@@ -136,8 +136,9 @@ router.post('/buyTank', token__module.isValid, (req, res) => {
 
                             if (err) {
 
-                                req.logger.log({ code: 0, user: user._id, operation: 'Update user', dateTime: Date.now(), props: {
-                                    research_id: research._id
+                                req.logs.log({ code: 0, user: user, section: 'shop', operation: 'Buy tank / Update user', dateTime: Date.now(), props: {
+                                    research_id: research._id,
+                                    vehicle: tank
                                 } });
 
                                 return res.json({error: err});
@@ -155,8 +156,20 @@ router.post('/buyTank', token__module.isValid, (req, res) => {
 
                                     if (err) {
 
+                                        req.logs.log({ code: 0, user: user, section: 'shop', operation: 'Buy tank / Update hangar', dateTime: Date.now(), props: {
+                                            research_id: research._id,
+                                            hangar_id: updHangar._id,
+                                            vehicle: tank
+                                        } });
+
                                         return res.json({error: err});
                                     }
+
+                                    req.logs.log({ code: 1, user: user, section: 'shop', operation: 'Buy tank', dateTime: Date.now(), props: {
+                                        research_id: research._id,
+                                        hangar_id: updHangar._id,
+                                        vehicle: tank
+                                    } });
 
                                     return res.json({success: true});
                                 }

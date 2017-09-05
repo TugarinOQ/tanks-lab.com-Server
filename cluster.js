@@ -41,12 +41,14 @@ app.use((req, res, next) => {
     connectDB(req, res, next);
 });
 
-app.use((req) => {
+app.use((req, res, next) => {
 
     const logger = loggerLog;
     logger.db = req.db;
 
     req.logs = logger;
+
+    next();
 });
 
 app.use(body__parser.json());
