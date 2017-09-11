@@ -114,7 +114,7 @@ router.post('/register', (req, res) => {
 
                                 const code = md5( email + 'Hfdis$%^4523hd' + user.insertedId + md5( md5('Hfdis$%^4523hd') + md5(email) ) );
 
-                                const hrefActivate = `http://localhost:3000/#/?mode=activateUser&user=${user.insertedId}&code=${code}`;
+                                const hrefActivate = `https://tanks-lab.com/#/?mode=activateUser&user=${user.insertedId}&code=${code}`;
 
                                 res.mailer.send('emailActivate', {
                                     to: email,
