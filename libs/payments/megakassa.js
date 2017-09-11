@@ -41,8 +41,6 @@ const signature = {
             config.secretKey
         ];
 
-        console.log(signature);
-
         return md5( `${config.secretKey}${ md5(signature.join(':')) }` );
     },
     merchantNotify: function({ req, res }) {
