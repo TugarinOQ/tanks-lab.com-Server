@@ -41,6 +41,8 @@ const signature = {
             config.secretKey
         ];
 
+        console.log(signature);
+
         return md5( `${config.secretKey}${ md5(signature.join(':')) }` );
     },
     merchantNotify: function({ req, res }) {
@@ -132,7 +134,7 @@ function merchant ({ order_id, amount, currency = 'RUB', description, debug = '0
         amount: amount,
         currency: currency,
         description: description,
-        debug: debug,
+        debug: parseInt(debug),
         language: config.language
     }, props);
 
