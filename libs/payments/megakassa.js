@@ -136,11 +136,11 @@ function merchant ({ order_id, amount, currency = 'RUB', description, debug = '0
         language: config.language
     }, props);
 
-    const signature = signature.merchant({ params: params });
+    const signature = this.signature.merchant({ params: params });
 
     params = Object.assign(params, { signature: signature });
 
-    return this.urls.merchant + ObjectInURL(params);
+    return config.urls.merchant + ObjectInURL(params);
 }
 
 function withdraw(props, cb) {

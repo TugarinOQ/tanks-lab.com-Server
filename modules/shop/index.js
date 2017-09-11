@@ -1,6 +1,6 @@
 const express = require('express'),
     router = express.Router(),
-    jwt = require('jsonwebtoken'),
+    async = require('async'),
     token__module = require('../token'),
     config = require('../../config/config');
 
@@ -51,7 +51,11 @@ router.post('/list', token__module.isValid, (req, res) => {
                     tanks.push(tank);
                 });
 
-                res.json(tanks);
+                const _ = tanks.sortByLevel();
+
+                // console.log(_);
+
+                res.json(_);
             });
         });
     });
@@ -107,7 +111,7 @@ router.post('/buyTank', token__module.isValid, (req, res) => {
                         return res.json({error: 'low money'});
                     }
 
-                    if ((Object.keys(hangar.vehicles).length - hangar.countSeats) > 0) {
+                    if (( ((additionSlot) ? hangar.countSeats + 1 : hangar.countSeats)  - Object.keys(hangar.vehicles).length) <= 0) {
 
                         return res.json({error: 'Not exists a free slot'});
                     }
@@ -117,7 +121,7 @@ router.post('/buyTank', token__module.isValid, (req, res) => {
                     Object.assign( tank, {
                         practice: 0,
                         buyDate: Date.now(),
-                        researchedDate: getResearchTime( getLevel(tank.level) * config.time.research )
+                        researchedDate: (fastResearch) ? Date.now() : getResearchTime( getLevel(tank.level) * config.time.research )
                     } );
 
                     updVehicles[ (updVehicles[tank.name]) ? tank.name + `_${Object.keys(hangar.vehicles).length}` : tank.name ] = tank;
@@ -212,5 +216,20 @@ function getLevel(level) {
         case 'X': return 10;
     }
 }
+
+Array.prototype.sortByLevel = function() {
+
+    const arrTanks = this;
+    const tanks = Array(arrTanks.length);
+
+    arrTanks.map((tank) => {
+
+        const level = getLevel(tank.level) - 1;
+
+        tanks[level] = tank;
+    });
+
+    return tanks;
+};
 
 module.exports = router;

@@ -49,11 +49,13 @@ router.get('/get', token__module.isValid, (req, res) => {
 
                     let practice = 0;
 
-                    async.mapSeries(hangar.vehicles, (hangarVehicle) => {
+                    Object.keys(hangar.vehicles).map((hangarVehicle) => {
 
-                        if (hangarVehicle.name === vehicle.name) {
+                        const _hangarVehicle = hangar.vehicles[hangarVehicle];
 
-                            practice += parseInt(Math.round(hangarVehicle.practice));
+                        if (_hangarVehicle.name === vehicle.name) {
+
+                            practice += parseInt(Math.round(parseInt(_hangarVehicle.practice)));
                         }
                     });
 

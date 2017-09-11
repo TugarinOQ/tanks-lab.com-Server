@@ -1,6 +1,7 @@
 const express = require('express'),
     router = express.Router(),
     User = require('../../models/user'),
+    md5 = require('md5'),
     jwt = require('jsonwebtoken'),
     token__module = require('../token');
 
@@ -53,7 +54,8 @@ router.post('/register', (req, res) => {
                                 bons: 0,
                                 practice: 0
                             }
-                        }
+                        },
+                        activate: false,
                     },
                     {
                        referral: referral
@@ -110,7 +112,25 @@ router.post('/register', (req, res) => {
                                     research_id: research._id
                                 } });
 
-                                return res.json({ success: "ok" });
+                                const code = md5( email + 'Hfdis$%^4523hd' + user.insertedId + md5( md5('Hfdis$%^4523hd') + md5(email) ) );
+
+                                const hrefActivate = `http://localhost:3000/#/?mode=activateUser&user=${user.insertedId}&code=${code}`;
+
+                                res.mailer.send('emailActivate', {
+                                    to: email,
+                                    subject: 'Подтверждение регистрации | Tanks-Lab.com',
+                                    href: hrefActivate
+                                }, function (err) {
+
+                                    if (err) {
+
+                                        console.log(err);
+
+                                        return res.json({ error: 'Error send mail' });
+                                    }
+
+                                    return res.json({ success: "ok" });
+                                });
                             });
                         });
                     });
@@ -152,6 +172,11 @@ router.post('/login', (req, res) => {
             res.json({ error: 'Authentication failed. User not found.' });
         } else if (user) {
 
+            if (user.activate === false || user.activate === undefined || user.activate === null) {
+
+                return res.json({ error: 'Authentication failed. Account is not activated.' });
+            }
+
             User.verifyPassword(pass, (err, success) => {
                 if (err || !success) return res.json({ error: 'Authentication failed. Wrong password.' });
 
@@ -171,9 +196,149 @@ router.post('/login', (req, res) => {
     });
 });
 
+router.post('/activate', (req, res) => {
+
+    const userID = req.body.user;
+    const code = req.body.code;
+
+    req.db.collection('users').findOne({ _id: req.ObjectId(userID) }, (err, user) => {
+
+        if (err) {
+
+            req.logs.log({ code: 0, user: userID, section: 'users', operation: 'Error activate', dateTime: Date.now(), props: {
+                code: code,
+                error: err
+            }});
+
+            return res.json({ error: err });
+        }
+
+        const controlCode = md5( user.email + 'Hfdis$%^4523hd' + userID + md5( md5('Hfdis$%^4523hd') + md5(user.email) ) );
+
+        if (controlCode !== code) {
+
+            req.logs.log({ code: 0, user: user, section: 'users', operation: 'Invalid code', dateTime: Date.now(), props: {
+                code: code,
+                error: err
+            }});
+
+            return res.json({ error: 'Invalid code' });
+        }
+
+        req.db.collection('users').updateOne({ _id: req.ObjectId(userID) }, {
+            $set: {
+                activate: true
+            }
+        }, (err, activate) => {
+
+            return res.json({ success: true });
+        });
+    });
+
+});
+
 router.post('/forgot', (req, res) => {
 
-    //
+    const login = req.body.login;
+    const email = req.body.email;
+
+    req.db.collection('users').findOne({
+        $and: [
+            { email: email },
+            { username: login }
+        ]
+    }, (err, user) => {
+
+        if (err) {
+
+            req.logs.log({ code: 0, user: user._id, section: 'users', operation: 'Error forgot password', dateTime: Date.now(), props: {
+                code: code,
+                error: err
+            }});
+
+            return res.json({ error: err });
+        }
+
+        const pass = `${(Date.now().toString(36).substr(2, 5) + Math.random().toString(36).substr(2, 5))}`;
+
+
+        User.cryptPassword(pass, (crypt) => {
+
+            if (crypt.error) {
+
+                return res.json('Error in generate password!');
+            }
+
+            req.db.collection('users').updateOne({_id: req.ObjectId(user._id)}, {
+                $set: {
+                    password: crypt.hash
+                }
+            }, (err) => {
+
+                if (err) {
+
+                    return res.json({ error: err });
+                }
+
+                res.mailer.send('resetPassword', {
+                    to: email,
+                    subject: 'Сброс пароля | Tanks-Lab.com',
+                    pass: pass
+                }, function (err) {
+
+                    if (err) {
+
+                        console.log(err);
+
+                        return res.json({error: 'Error send mail'});
+                    }
+
+                    return res.json({success: "ok"});
+                });
+            });
+        });
+    });
+});
+
+router.post('/changePassword', token__module.isValid, (req, res) => {
+
+    const userID = req.decoded._;
+
+    const oldPass = req.body.oldPass;
+    const newPass = req.body.newPass;
+    const confirm = req.body.confirmPass;
+
+    req.db.collection('users').findOne({ _id: req.ObjectId(userID) }, (err, user) => {
+
+        User.verifyPassword(oldPass, (err, success) => {
+            if (err || !success) return res.json({ error: 'Authentication failed. Wrong old password.' });
+
+
+            if (newPass !== confirm) {
+
+                return res.json({ error: 'Authentication failed. Wrong new password.' });
+            }
+
+            User.cryptPassword(newPass, (crypt) => {
+
+                if (crypt.error) {
+
+                    return res.json('Error in password!');
+                }
+
+                req.db.collection('users').updateOne({ _id: req.ObjectId(userID) },{ $set: { password: crypt.hash } }, (err, user) => {
+
+                    if (err) {
+
+                        return res.json({ error: err });
+                    }
+
+                    return res.json({ success: true });
+                });
+            });
+
+        }, user.password);
+    });
 });
 
 router.get('/info', token__module.isValid, (req, res) => {

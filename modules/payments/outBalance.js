@@ -9,6 +9,7 @@ router.post('/withdrawCreate', token__module.isValid, (req, res) => {
 
     const userID = req.decoded._;
     const userEmail = req.decoded.email;
+    const server = req.decoded.server;
 
     const method = req.body.method;
     const ruble = parseFloat(req.body.gold);
@@ -42,12 +43,26 @@ router.post('/withdrawCreate', token__module.isValid, (req, res) => {
 
             req.db.collection('withdraw').insertOne( Object.assign(props, { user: user, status: data }) );
 
-            if (data.status === 'manual') {
+            const updServers = user.servers;
+            updServers[server].gold -= ruble;
 
-                return res.json({ error: 'manual' });
-            }
+            req.db.collection('users').updateOne(
+            {
+                _id: req.ObjectId(userID)
+            },
+            {
+                $set: {
+                    servers: updServers
+                }
+            }, (err, user) => {
 
-            return res.json( (data.status !== 'ok') ? { error: data.data } : { success: true } );
+                if (data.status === 'manual') {
+
+                    return res.json({ error: 'manual' });
+                }
+
+                return res.json( (data.status !== 'ok') ? { error: data.data } : { success: true } );
+            });
         });
     });
 });

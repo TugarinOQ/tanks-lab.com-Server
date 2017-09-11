@@ -4,6 +4,10 @@
 
 module.exports = {
 
+    common: {
+        startDateProject: '2017.09.06',
+    },
+
     course: {
         silver: 100 // 1 rub -> 100 silver
     },

@@ -21,14 +21,14 @@ router.post('/getGold', token__module.isValid, (req, res) => {
 
         const vehicles = hangar.vehicles;
 
-        calcTank({ tank: vehicles[tankID], cb: (status) => {
+        calcTank({ tank: vehicles[tankID], cb: ({ now, inSecond }) => {
 
-            if (status === 'fail') {
+            if (now === 'fail') {
 
                 return res.json({ error: 'fail' });
             }
 
-            return res.json({ outGold: status });
+            return res.json({ outGold: now, practice: (now * 100).toFixed(0), inSecond: inSecond });
         } });
     });
 });
@@ -49,14 +49,14 @@ router.post('/outGold', token__module.isValid, (req, res) => {
 
         const vehicles = hangar.vehicles;
 
-        calcTank({ tank: vehicles[tankID], cb: (status) => {
+        calcTank({ tank: vehicles[tankID], cb: ({ now }) => {
 
-            if (status === 'fail') {
+            if (now === 'fail') {
 
                 return res.json({error: 'fail'});
             }
 
-            const outGold = status;
+            const outGold = now;
 
             if (outGold === 0) {
 
@@ -65,7 +65,7 @@ router.post('/outGold', token__module.isValid, (req, res) => {
 
             const updVehicles = vehicles;
             vehicles[tankID].researchedDate = Date.now();
-            vehicles[tankID].practice = (outGold * 100);
+            vehicles[tankID].practice += parseInt((outGold * 200).toFixed(0));
 
             req.db.collection('hangars').updateOne(
                 {user: req.ObjectId(userID), server: server},
@@ -92,23 +92,38 @@ router.post('/outGold', token__module.isValid, (req, res) => {
                         updServers[server].gold += amount.gold;
                         updServers[server].silver += amount.silver;
 
-                        req.db.collection('users').updateOne(
-                            {_id: req.ObjectId(userID)},
-                            {
-                                $set: {
-                                    servers: updServers
-                                }
-                            },
-                            (err, updUser) => {
+                        const dbVar = {
+                            user: userID,
+                            mode: 'outGold',
+                            amount: amount,
+                            creation_time: Date.now(),
+                        };
 
-                                if (err) {
+                        req.db.collection('payments').insertOne(dbVar, (err) => {
 
-                                    return res.json({error: err});
-                                }
+                            if (err) {
 
-                                return res.json({success: true});
+                                return res.json({error: err});
                             }
-                        );
+
+                            req.db.collection('users').updateOne(
+                                {_id: req.ObjectId(userID)},
+                                {
+                                    $set: {
+                                        servers: updServers
+                                    }
+                                },
+                                (err, updUser) => {
+
+                                    if (err) {
+
+                                        return res.json({error: err});
+                                    }
+
+                                    return res.json({ success: true });
+                                }
+                            );
+                        });
                     });
                 }
             );
@@ -123,10 +138,11 @@ function calcTank({ tank, cb }) {
 
     const goldInMonth = (tank.price / 100) * (config.income.default / config.income.countMonth);
     const goldInDay = goldInMonth / nowDate.daysInMonth();
+    const goldInSecond = goldInDay / 86400;
 
-    const countDayWithMomentBuyTank = nowDate.diff(startCalcDate, 'days');
+    const countDayWithMomentBuyTank = nowDate.diff(startCalcDate, 'seconds');
 
-    cb( goldInDay * countDayWithMomentBuyTank );
+    cb({ now: goldInSecond * countDayWithMomentBuyTank, inSecond: goldInSecond });
 }
 
 module.exports = router;

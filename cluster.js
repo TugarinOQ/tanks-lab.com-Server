@@ -3,6 +3,7 @@ const express = require('express'),
     ObjectID = require('mongodb').ObjectID,
     body__parser = require('body-parser'),
     app = express(),
+    mailer = require('express-mailer'),
     token__module = require('./modules/token'),
     config = require('./config/config'),
     loggerLog = require('./libs/logger.log');
@@ -35,6 +36,20 @@ function connectDB(req, res, next) {
     });
 }
 
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+
+mailer.extend(app, {
+    from: 'no-reply@tanks-lab.com',
+    host: 'smtp.yandex.ru',
+    secureConnection: true,
+    port: 465,
+    transportMethod: 'SMTP',
+    auth: {
+        user: 'no-reply@tanks-lab.com',
+        pass: 'oc6NT9yafp'
+    }
+});
 
 app.use((req, res, next) => {
 
@@ -45,7 +60,6 @@ app.use((req, res, next) => {
 
     const logger = loggerLog;
     logger.db = req.db;
-
     req.logs = logger;
 
     next();
@@ -57,6 +71,7 @@ app.use(body__parser.urlencoded({
 }));
 
 // ROUTING
+app.use('/info', require('./modules/info'));
 app.get('/token/valid', token__module.isValid, (req, res) => {
 
     const email = req.decoded.email;

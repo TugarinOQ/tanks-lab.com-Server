@@ -31,7 +31,7 @@ router.post('/notification', token__module.isValid, (req, res) => {
                 return res.json({ error: err });
             }
 
-            const respSignature = megaKassaAPI.genSignature.merchantNotify({ req: req, res: response });
+            const respSignature = megaKassaAPI.signature.merchantNotify({ req: req, res: response });
 
             if (megaKassaAPI.checkIP({ req: req }) || (amount !== `${response.amount}`) || (signature !== respSignature)) {
 
@@ -126,6 +126,7 @@ function updBalance({ req, res, user, referral = false, amount, cb }) {
         updServers[server].gold += amount / (config.referral.firstLevel);
     } else {
         updServers[server].silver += amount * config.course.silver;
+        updServers[server].practice += parseInt(amount / 5);
     }
 
     req.db.collection('users').updateOne(

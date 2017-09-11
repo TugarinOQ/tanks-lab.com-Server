@@ -1,9 +1,9 @@
 {
   "grid": {
     "rows": 1,
-    "columns": 3,
+    "columns": 10,
     "levels": [
-      1, 1, 1
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1
     ]
   },
   "nodes": {
@@ -29,6 +29,76 @@
       "column": 3,
       "parents": [
         "R08_BT-2"
+      ],
+      "lines": [
+        "R12_A-20"
+      ]
+    },
+    "R12_A-20": {
+      "row": 1,
+      "column": 4,
+      "parents": [
+        "R03_BT-7"
+      ],
+      "lines": [
+        "R04_T-34"
+      ]
+    },
+    "R04_T-34": {
+      "row": 1,
+      "column": 5,
+      "parents": [
+        "R12_A-20"
+      ],
+      "lines": [
+        "R07_T-34-85"
+      ]
+    },
+    "R07_T-34-85": {
+      "row": 1,
+      "column": 6,
+      "parents": [
+        "R04_T-34"
+      ],
+      "lines": [
+        "R01_IS"
+      ]
+    },
+    "R01_IS": {
+      "row": 1,
+      "column": 7,
+      "parents": [
+        "R07_T-34-85"
+      ],
+      "lines": [
+        "R19_IS-3"
+      ]
+    },
+    "R19_IS-3": {
+      "row": 1,
+      "column": 8,
+      "parents": [
+        "R01_IS"
+      ],
+      "lines": [
+        "R81_T-10"
+      ]
+    },
+    "R81_T-10": {
+      "row": 1,
+      "column": 9,
+      "parents": [
+        "R19_IS-3"
+      ],
+      "lines": [
+        "R45_IS-7"
+      ]
+    },
+    "R45_IS-7": {
+      "row": 1,
+      "column": 10,
+      "parents": [
+        "R81_T-10"
       ]
     }
   }

@@ -32,10 +32,16 @@ router.post('/genURL', token__module.isValid, (req, res) => {
         return res.json({ error: 'Min value = 2 RUB' });
     }
 
+    if (ruble > 14000) {
+
+        return res.json({ error: 'Max value = 14.000 RUB' });
+    }
+
     const genOrderID = `${(Date.now().toString(36).substr(2, 4) + Math.random().toString(36).substr(2, 4)).toUpperCase()}`;
 
     const dbVar = {
         user: userID,
+        mode: 'payments',
         order_id: genOrderID,
         amount: ruble,
         creation_time: Date.now(),
