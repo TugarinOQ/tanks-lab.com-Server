@@ -249,7 +249,7 @@ router.post('/forgot', (req, res) => {
         ]
     }, (err, user) => {
 
-        if (err) {
+        if (err || !user) {
 
             req.logs.log({ code: 0, user: user._id, section: 'users', operation: 'Error forgot password', dateTime: Date.now(), props: {
                 code: code,
