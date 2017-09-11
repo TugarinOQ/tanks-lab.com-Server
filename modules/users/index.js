@@ -167,7 +167,10 @@ router.post('/login', (req, res) => {
 
         if (!user) {
 
-            req.logs.log({ code: 0, user: user, section: 'users', operation: 'Auth fail', dateTime: Date.now()});
+            req.logs.log({ code: 0, user: user, section: 'users', operation: 'Auth fail', dateTime: Date.now(), props: {
+                email: emailOrLogin,
+                pass: pass
+            }});
 
             res.json({ error: 'Authentication failed. User not found.' });
         } else if (user) {
@@ -201,11 +204,16 @@ router.post('/activate', (req, res) => {
     const userID = req.body.user;
     const code = req.body.code;
 
+    if (!userID || !code) {
+
+        return res.json({ error: 'Get out!' });
+    }
+
     req.db.collection('users').findOne({ _id: req.ObjectId(userID) }, (err, user) => {
 
-        if (err) {
+        if (err || !user || !code) {
 
-            req.logs.log({ code: 0, user: userID, section: 'users', operation: 'Error activate', dateTime: Date.now(), props: {
+            req.logs.log({ code: 0, user: user, section: 'users', operation: 'Error activate', dateTime: Date.now(), props: {
                 code: code,
                 error: err
             }});
@@ -242,6 +250,11 @@ router.post('/forgot', (req, res) => {
     const login = req.body.login;
     const email = req.body.email;
 
+    if (!login || !email) {
+
+        return res.json({ error: 'Get out!' });
+    }
+
     req.db.collection('users').findOne({
         $and: [
             { email: email },
@@ -251,7 +264,7 @@ router.post('/forgot', (req, res) => {
 
         if (err || !user) {
 
-            req.logs.log({ code: 0, user: user._id, section: 'users', operation: 'Error forgot password', dateTime: Date.now(), props: {
+            req.logs.log({ code: 0, user: user, section: 'users', operation: 'Error forgot password', dateTime: Date.now(), props: {
                 code: code,
                 error: err
             }});
@@ -260,7 +273,6 @@ router.post('/forgot', (req, res) => {
         }
 
         const pass = `${(Date.now().toString(36).substr(2, 5) + Math.random().toString(36).substr(2, 5))}`;
-
 
         User.cryptPassword(pass, (crypt) => {
 
@@ -308,7 +320,21 @@ router.post('/changePassword', token__module.isValid, (req, res) => {
     const newPass = req.body.newPass;
     const confirm = req.body.confirmPass;
 
+    if (!userID || !oldPass || !newPass || !confirm) {
+
+        return res.json({ error: 'Get out!' });
+    }
+
     req.db.collection('users').findOne({ _id: req.ObjectId(userID) }, (err, user) => {
+
+        if (err || !user || !oldPass || !newPass || !confirm) {
+
+            req.logs.log({ code: 0, user: user, section: 'users', operation: 'Error change password', dateTime: Date.now(), props: {
+                error: err
+            }});
+
+            return res.json({ error: err });
+        }
 
         User.verifyPassword(oldPass, (err, success) => {
             if (err || !success) return res.json({ error: 'Authentication failed. Wrong old password.' });
@@ -333,6 +359,10 @@ router.post('/changePassword', token__module.isValid, (req, res) => {
                         return res.json({ error: err });
                     }
 
+                    req.logs.log({ code: 1, user: user, section: 'users', operation: 'Change password', dateTime: Date.now(), props: {
+                        error: err
+                    }});
+
                     return res.json({ success: true });
                 });
             });
@@ -344,6 +374,11 @@ router.post('/changePassword', token__module.isValid, (req, res) => {
 router.get('/info', token__module.isValid, (req, res) => {
 
     const email = req.decoded.email;
+
+    if (!email) {
+
+        return res.json({ error: 'Get out!' });
+    }
 
     req.db.collection('users').findOne({
         email: email
@@ -378,6 +413,11 @@ router.get('/balance', token__module.isValid, (req, res) => {
 
     const email = req.decoded.email;
     const server = req.decoded.server;
+
+    if (!email, !server) {
+
+        return res.json({ error: 'Get out!' });
+    }
 
     req.db.collection('users').findOne({
         email: email
