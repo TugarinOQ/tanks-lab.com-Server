@@ -126,7 +126,7 @@ const helpFunction = {
     }
 };
 
-function merchant ({ order_id, amount, currency = 'RUB', description, debug = '0', props = {} }) {
+function merchant ({ order_id, amount, currency = 'RUB', description, debug = 0, props = {} }) {
 
     let params = Object.assign({
         shop_id: config.shop_id,
@@ -134,8 +134,7 @@ function merchant ({ order_id, amount, currency = 'RUB', description, debug = '0
         amount: amount,
         currency: currency,
         description: description,
-        debug: parseInt(debug),
-        language: config.language
+        debug: debug
     }, props);
 
     const signature = this.signature.merchant({ params: params });
