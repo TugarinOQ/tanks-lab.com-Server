@@ -126,7 +126,7 @@ const helpFunction = {
     }
 };
 
-function merchant ({ order_id, amount, currency = 'RUB', description, debug = 0, props = {} }) {
+function merchant ({ order_id, amount, currency = 'RUB', description, debug = '', props = {} }) {
 
     let params = Object.assign({
         shop_id: config.shop_id,

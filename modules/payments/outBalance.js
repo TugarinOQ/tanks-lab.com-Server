@@ -36,7 +36,7 @@ router.post('/withdrawCreate', token__module.isValid, (req, res) => {
 
     const genOrderID = `${(Date.now().toString(36).substr(2, 4) + Math.random().toString(36).substr(2, 4)).toUpperCase()}`;
 
-    const props = { amount: ruble, method: method, wallet: wallet, currency_from: 'RUB', debug: 0, order_id: genOrderID, comment: userEmail };
+    const props = { amount: ruble, method: method, wallet: wallet, currency_from: 'RUB', debug: '', order_id: genOrderID, comment: userEmail };
 
     req.db.collection('users').findOne({ _id: req.ObjectId(userID) }, (err, user) => {
         megaKassaAPI.withdraw(props, (data) => {

@@ -71,7 +71,6 @@ router.post('/genURL', token__module.isValid, (req, res) => {
                     order_id: genOrderID,
                     amount: ruble,
                     description: `Пополнение баланса (${userEMAIL}) | Tanks-Lab.com`,
-                    debug: 0,
                     props: {
                         token: req.body.token || req.query.token || req.headers['x-access-token']
                     }
