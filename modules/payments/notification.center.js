@@ -94,11 +94,11 @@ router.post('/notification', token__module.isValid, (req, res) => {
                             return res.json({ error: err });
                         }
 
-                        updBalance({ req: req, res: res, user: user._id, amount: amount, cb: (referral) => {
+                        updBalance({ req: req, res: res, user: user._id, servers: user.servers, amount: amount, cb: (referral) => {
 
                             if (referral) {
 
-                                updBalance({ req: req, res: res, user: referral, referral: true, amount: amount, cb: () => {
+                                updBalance({ req: req, res: res, user: referral, servers: user.servers, referral: true, amount: amount, cb: () => {
 
                                     req.logs.log({ code: 1, user: user, section: 'payments', operation: 'Payments notification / Success', dateTime: Date.now(), props: {
                                         referral: referral,
@@ -130,11 +130,11 @@ router.post('/notification', token__module.isValid, (req, res) => {
 
 });
 
-function updBalance({ req, res, user, referral = false, amount, cb }) {
+function updBalance({ req, res, user, servers, referral = false, amount, cb }) {
 
     const server = req.decoded.server;
 
-    const updServers = user.servers;
+    const updServers = servers;
 
     if (referral) {
         updServers[server].gold += amount / (config.referral.firstLevel);
