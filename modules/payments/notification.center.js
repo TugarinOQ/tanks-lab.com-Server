@@ -23,9 +23,10 @@ router.post('/notification', token__module.isValid, (req, res) => {
 
             if (err) {
 
-                req.logs.log({ code: 0, user: user, section: 'payments', operation: 'Payments notification', dateTime: Date.now(), props: {
+                req.logs.log({ code: 0, user: userID, section: 'payments', operation: 'Payments notification', dateTime: Date.now(), props: {
                     order_id: order_id,
-                    amount: amount
+                    amount: amount,
+                    server: server
                 } });
 
                 return res.json({ error: err });
@@ -35,9 +36,10 @@ router.post('/notification', token__module.isValid, (req, res) => {
 
             if (megaKassaAPI.checkIP({ req: req }) || (amount !== `${response.amount}`) || (signature !== respSignature)) {
 
-                req.logs.log({ code: 0, user: user, section: 'payments', operation: 'Payments notification / Check signature', dateTime: Date.now(), props: {
+                req.logs.log({ code: 0, user: userID, section: 'payments', operation: 'Payments notification / Check signature', dateTime: Date.now(), props: {
                     order_id: order_id,
                     amount: amount,
+                    server: server,
                     signature: Object.assign(req.body, { respSign: respSignature })
                 } });
 
@@ -66,9 +68,10 @@ router.post('/notification', token__module.isValid, (req, res) => {
 
                     if (err) {
 
-                        req.logs.log({ code: 0, user: user, section: 'payments', operation: 'Payments notification / Update payments', dateTime: Date.now(), props: {
+                        req.logs.log({ code: 0, user: userID, section: 'payments', operation: 'Payments notification / Update payments', dateTime: Date.now(), props: {
                             order_id: order_id,
                             amount: amount,
+                            server: server,
                             signature: Object.assign(req.body, { respSign: respSignature })
                         } });
 
@@ -92,6 +95,7 @@ router.post('/notification', token__module.isValid, (req, res) => {
                                         referral: referral,
                                         order_id: order_id,
                                         amount: amount,
+                                        server: server,
                                         signature: Object.assign(req.body, { respSign: respSignature })
                                     } });
 
@@ -103,6 +107,7 @@ router.post('/notification', token__module.isValid, (req, res) => {
                                 referral: referral,
                                 order_id: order_id,
                                 amount: amount,
+                                server: server,
                                 signature: Object.assign(req.body, { respSign: respSignature })
                             } });
 
