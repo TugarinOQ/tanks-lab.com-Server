@@ -156,12 +156,12 @@ function updBalance({ req, res, user, referral = false, amount, cb }) {
                 return res.json({error: err});
             }
 
-            if (user) {
+            if (!referral) {
 
                 return cb(undefined);
             }
 
-            cb(user.referral !== 'me' ? user.referral : undefined);
+            return cb(user.referral !== 'me' ? user.referral : undefined);
         }
     );
 }
