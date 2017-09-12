@@ -85,6 +85,15 @@ router.post('/notification', token__module.isValid, (req, res) => {
 
                     req.db.collection('users').findOne({ _id: req.ObjectId(userID), }, (err, user) => {
 
+                        if (err || !user) {
+
+                            req.logs.log({ code: 0, user: user || userID, section: 'payments', operation: 'Payments notification / Update payments', dateTime: Date.now(), props: {
+                                server: server
+                            } });
+
+                            return res.json({ error: err });
+                        }
+
                         updBalance({ req: req, res: res, user: user, amount: amount, cb: (referral) => {
 
                             if (referral) {
