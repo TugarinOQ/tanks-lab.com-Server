@@ -43,7 +43,7 @@ router.post('/list', token__module.isValid, (req, res) => {
 
                 _filterTanks.map((tank) => {
 
-                    tank.visibleToSell = research.vehicles.indexOf(tank.name) > -1;
+                    tank.visibleToSell = (research.vehicles.indexOf(tank.name) > -1) || false;
                     tank.availableSell = (tank.price <= (user.servers[server].silver || 0));
 
                     tank.sell = parseInt(((tank.price / 100)  * 0.70) / 5);
