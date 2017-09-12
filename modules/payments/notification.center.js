@@ -94,7 +94,7 @@ router.post('/notification', token__module.isValid, (req, res) => {
                             return res.json({ error: err });
                         }
 
-                        updBalance({ req: req, res: res, user: user, amount: amount, cb: (referral) => {
+                        updBalance({ req: req, res: res, user: user._id, amount: amount, cb: (referral) => {
 
                             if (referral) {
 
