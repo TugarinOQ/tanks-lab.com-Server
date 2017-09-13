@@ -43,17 +43,17 @@ router.post('/list', token__module.isValid, (req, res) => {
 
                 _filterTanks.map((tank) => {
 
-                    tank.visibleToSell = (research.vehicles.indexOf(tank.name) > -1) || false;
-                    tank.availableSell = (tank.price <= (user.servers[server].silver || 0));
+                    const _tank = tank;
 
-                    tank.sell = parseInt(((tank.price / 100)  * 0.70) / 5);
+                    _tank.visibleToSell = (research.vehicles.indexOf(_tank.name) > -1) || false;
+                    _tank.availableSell = (_tank.price <= (user.servers[server].silver || 0));
 
-                    tanks.push(tank);
+                    _tank.sell = parseInt(((_tank.price / 100)  * 0.70) / 5);
+
+                    tanks.push(_tank);
                 });
 
                 const _ = tanks.sortByLevel();
-
-                // console.log(_);
 
                 res.json(_);
             });
@@ -220,16 +220,27 @@ function getLevel(level) {
 Array.prototype.sortByLevel = function() {
 
     const arrTanks = this;
-    const tanks = Array(arrTanks.length);
 
-    arrTanks.map((tank) => {
+    for (let i = 0; i < (arrTanks.length - 1); i++) {
 
-        const level = getLevel(tank.level) - 1;
+        let arrTanks_min = arrTanks[i];
 
-        tanks[level] = tank;
-    });
+        for (let j = i + 1; j < arrTanks.length; j++) {
 
-    return tanks;
+            if (getLevel(arrTanks[j].level) < getLevel(arrTanks_min.level)) {
+
+                const arrTanks0 = arrTanks[i];
+
+                arrTanks_min = arrTanks[j];
+
+                arrTanks[i] = arrTanks_min;
+
+                arrTanks[j] = arrTanks0;
+            }
+        }
+    }
+
+    return arrTanks;
 };
 
 module.exports = router;
