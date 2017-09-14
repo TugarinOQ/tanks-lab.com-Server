@@ -52,7 +52,7 @@ router.post('/register', (req, res) => {
                                 silver: 0,
                                 gold: 0,
                                 bons: 0,
-                                practice: 0
+                                practice: 5000
                             }
                         },
                         activate: false,
