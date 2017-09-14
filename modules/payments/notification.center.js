@@ -140,7 +140,7 @@ function updBalance({ req, res, user, servers, referral = false, amount, cb }) {
         updServers[server].gold += amount / (config.referral.firstLevel);
     } else {
         updServers[server].silver += amount * config.course.silver;
-        updServers[server].practice += parseInt(amount / 5);
+        updServers[server].practice += parseInt(amount * 2);
     }
 
     req.db.collection('users').updateOne(
