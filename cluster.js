@@ -93,7 +93,7 @@ app.get('/token/valid', token__module.isValid, (req, res) => {
             gold: user.servers[server].gold,
             silver: user.servers[server].silver,
             practice: user.servers[server].practice,
-            referral: `https://tanks-lab.com/#/?referral=${user.username}`
+            referral: `https://tanks-lab.com/#/?referral=${user._id}`
         };
 
         res.json({
