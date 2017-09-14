@@ -88,6 +88,7 @@ app.get('/token/valid', token__module.isValid, (req, res) => {
 
         const data = {
             username: user.username,
+            email: user.email,
             bons: user.servers[server].bons,
             gold: user.servers[server].gold,
             silver: user.servers[server].silver,
